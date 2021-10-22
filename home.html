@@ -158,7 +158,7 @@
        }
 
        const getUserData=(username,page,limit)=>{
-           return fetch(`https://api.github.com/users/${username}/repos?_page=${page}&_limit=${limit}`)
+           return fetch(`https://api.github.com/users/${username}/repos?page=${page}&per_page=${limit}`)
            .then(res=>res.json())
        }
 
