@@ -42,6 +42,13 @@
            background-color: black;
            color: white;
        }
+       #pagination{
+           display: flex;
+           margin-top: 20px;
+           align-items: center;
+           justify-content: center;
+           gap: 1rem;
+       }
     </style>
 </head>
 <body>
@@ -49,32 +56,122 @@
     <h1>Home Page</h1>
     <input id="user" type="text" placeholder="users Search"/>
     <button id="btn">Search</button>
+    <div id="pagination">
+        <!-- Previous -->
+        <!-- Current -->
+        <!-- Next -->
+    </div>
     <div id="container">
         
     </div>
     
     <script>
        
+       let currentPage = 1;
+       let limitItems = 10;
+
        window.addEventListener("load",()=>{
         //    showData();
             const btn= document.getElementById("btn");
-            btn.addEventListener("click",showData);
-       })
+            btn.addEventListener("click",handleSubmit);
 
-       const getUserData=(username)=>{
-           return fetch(`https://api.github.com/users/${username}/repos`)
+            createPagination();
+            const div = document.getElementById("pagination");
+            div.addEventListener("click",handlePageChange);
+       })
+       
+       async function handleSubmit(){
+           try{
+                event.preventDefault();
+
+                const username = document.getElementById("user").value;
+                console.log(username)
+                await fetchData(username,currentPage,limitItems);
+                
+           }
+           catch(err){
+
+           }
+       }
+       async function handlePageChange(){
+           try{
+               const pageNumber = parseInt(event.target.name);
+               currentPage = pageNumber;
+               fetchData(currentPage,limitItems);
+               createPagination()
+           }
+           catch(err){
+
+           }
+       }
+
+       function createPagination(){
+            const div = document.getElementById("pagination");
+            div.innerHTML = null;
+            const previous = document.createElement("button");
+            previous.textContent = "Previous";
+            // previous.style.backgroundColor = "black";
+            // previous.style.color = "white";
+            previous.style.border ="2px solid red";
+            previous.style.borderRadius = "20px";
+            previous.style.padding ="10px 20px";
+            previous.name = currentPage-1;
+            if(currentPage===1)
+            {
+                previous.disabled = true;
+                previous.style.backgroundColor = "black";
+                previous.style.color = "white";
+            } 
+
+            const Current = document.createElement("button");
+            Current.textContent = "Current";
+            Current.style.backgroundColor = "black";
+            Current.style.color = "white";
+            Current.style.border ="2px solid red";
+            Current.style.borderRadius = "20px";
+            Current.style.padding ="10px 20px";
+            Current.name = currentPage;
+
+            const next = document.createElement("button");
+            next.textContent= "Next";
+            next.style.backgroundColor = "black";
+            next.style.color = "white";
+            next.style.border ="2px solid red";
+            next.style.borderRadius = "20px";
+            next.style.padding ="10px 20px";
+            next.name= currentPage+1;
+
+            div.append(previous,Current,next);
+       }
+
+       async function fetchData(username,page,limit){
+           try{
+                // const username = document.getElementById("user").value;
+                // console.log(username)
+               const data = await getUserData(username,page,limit);
+               showData(data)
+               createPagination()
+           }
+           catch(err){
+
+           }
+       }
+
+       const getUserData=(username,page,limit)=>{
+           return fetch(`https://api.github.com/users/${username}/repos?_page=${page}&_limit=${limit}`)
            .then(res=>res.json())
        }
 
-        async function showData(){
+        async function showData(data){
             try{
-                const username = document.getElementById("user").value;
-                console.log(username)
+                
+                // const username = document.getElementById("user").value;
+                // console.log(username)
                 const container = document.getElementById("container");
                 container.innerHTML= null;
                 
-                const data = await getUserData(username);
-                console.log(data);
+                // const data = await getUserData(username);
+                // console.log(data);
                 const div = new DocumentFragment();
                 for(const value of data){
                     const results = createCard(value);
@@ -105,6 +202,8 @@
            
            return div
        }
+
+
     </script>
 </body>
 </html>
